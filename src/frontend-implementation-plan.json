@@ -1,0 +1,96 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Immediate publish flow: remove moderation UI and align upload + queries",
+  "requirements": [
+    {
+      "id": "REQ-45",
+      "summary": "Align React Query hooks with immediate publish by removing moderation/admin APIs and ensuring article lists refresh after upload",
+      "acceptanceCriteria": [
+        "frontend/src/hooks/useQueries.ts no longer imports or references SubmissionStatus or moderation-only types/hooks (pending list, approve/reject).",
+        "The upload/submission mutation called by the upload page triggers invalidation of all relevant article queries (at minimum queryKey ['articles']) so navigating back to Home/News shows the new item without hard refresh.",
+        "Any admin-check hook (useIsCallerAdmin) is removed or becomes unused and is not required for feeds or uploading."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Remove moderation-related imports and hooks (ArticleSubmission, SubmissionStatus, submit/pending/approve/reject helpers) and update the upload mutation used by the Upload page to call the immediate-publish backend capability (per current backend interface, use actor.uploadArticle). Ensure successful upload invalidates/refetches the core article list query keys (at minimum ['articles'] and any promotion/category variants) so Home/News refresh immediately. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/HomePage.tsx",
+          "operation": "modify",
+          "description": "Remove dependency on admin-check query logic for feed rendering (stop using useIsCallerAdmin in the Home feed) so feeds are purely based on published articles and refresh via query invalidation. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-46",
+      "summary": "Update Upload page to publish immediately for authenticated users and remove approval/pending references",
+      "acceptanceCriteria": [
+        "frontend/src/pages/UploadSubmissionPage.tsx no longer sets `status: SubmissionStatus.pending` on the payload.",
+        "UploadSubmissionPage user-facing text no longer mentions admin approval or pending review (e.g., replace “Submit for Approval” / “pending admin approval” with immediate publish language).",
+        "After a successful upload, the confirmation state tells the user the post is published and can be seen in feeds immediately."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/UploadSubmissionPage.tsx",
+          "operation": "modify",
+          "description": "Switch the page to use the immediate-publish upload mutation (from useQueries) and build a payload matching the published Article model (no SubmissionStatus, no moderation fields). Update button labels, helper text, and success confirmation copy to reflect immediate publishing and visibility in feeds. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-47",
+      "summary": "Remove/disable admin-only moderation UI, routes, and navigation entry points",
+      "acceptanceCriteria": [
+        "Profile page no longer shows an “Admin Access” section or links/buttons to '/admin/upload-article' or '/admin/approval'.",
+        "Routes for '/admin/upload-article' and '/admin/approval' are removed from frontend/src/App.tsx route tree, or replaced with a non-admin accessible state that does not reference admin/moderation functionality.",
+        "AdminApprovalPage and AdminUploadArticlePage are no longer reachable through in-app navigation."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Remove the admin route registrations and their imports for '/admin/upload-article' and '/admin/approval' so these pages are no longer part of the route tree. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/ProfilePage.tsx",
+          "operation": "modify",
+          "description": "Remove the Admin Access section and any navigation/actions linking to admin pages; also remove the useIsCallerAdmin hook usage from this page so admin-only UI is not exposed. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/HomePage.tsx",
+          "operation": "modify",
+          "description": "Remove admin-only empty-state messaging and admin upload call-to-action that links to '/admin/upload-article' so no moderation/admin entry points remain in Home. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/AdminApprovalPage.tsx",
+          "operation": "delete",
+          "description": "Delete the admin moderation/approval screen implementation to ensure it cannot be reached or referenced in-app."
+        },
+        {
+          "path": "frontend/src/pages/AdminUploadArticlePage.tsx",
+          "operation": "delete",
+          "description": "Delete the admin upload/moderation management screen implementation to ensure it cannot be reached or referenced in-app."
+        }
+      ]
+    },
+    {
+      "id": "REQ-48",
+      "summary": "Keep existing header search bar and Upload button unchanged while ensuring search continues to work against published articles",
+      "acceptanceCriteria": [
+        "No functional or visual regressions in the existing AppHeader search input and Upload navigation affordance.",
+        "Search results continue to be returned from the backend searchArticles API and displayed by existing page logic where search is used.",
+        "Uploading remains accessible via the existing Upload button navigation flow."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Ensure search remains wired to the backend searchArticles capability and that post-upload cache invalidation also refreshes any article-search-related cached queries as needed, without changing the AppHeader UI/behavior (search input + Upload navigation remain as-is). Verify the component's usage instructions before implementing."
+        }
+      ]
+    }
+  ]
+}
