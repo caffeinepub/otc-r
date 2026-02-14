@@ -2,11 +2,12 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-frontend-react-query-hooks-to-remove-moderation-admin-apis-and-align-the-upload-mutation-with-immediate-publish-including-invalidating-refetching-article-list-queries-so-new-uploads-appear-in-home-and-news-immediately",
-      "featureTitle": "Update frontend React Query hooks to remove moderation/admin APIs and align the upload mutation with immediate publish, including invalidating/refetching article list queries so new uploads appear in Home and News immediately.",
+      "featureId": "feature-improve-error-handling-in-the-publish-content-page-so-that-when-publishing-fails-the-ui-shows-the-actual-backend-error-message-when-available-instead-of-always-showing-a-generic-failure-message",
+      "featureTitle": "Improve error handling in the Publish Content page so that when publishing fails, the UI shows the actual backend error message (when available) instead of always showing a generic failure message.",
       "files": [
         "frontend/src/hooks/useQueries.ts",
-        "frontend/src/pages/HomePage.tsx"
+        "frontend/src/pages/UploadSubmissionPage.tsx",
+        "frontend/src/utils/errorMessage.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -17,14 +18,15 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-45"
+        "REQ-2"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-update-the-upload-page-ui-and-behavior-so-authenticated-users-publish-immediately-and-remove-all-references-to-approval-pending-states-from-user-facing-text-and-payload-fields",
-      "featureTitle": "Update the Upload page UI and behavior so authenticated users publish immediately, and remove all references to approval/pending states from user-facing text and payload fields.",
+      "featureId": "feature-ensure-that-a-successfully-published-submission-becomes-visible-in-the-article-feeds-immediately-after-publishing-home-news-queries-refresh-appropriately-and-that-the-success-state-is-only-shown-after-the-publish-mutation-truly-succeeds",
+      "featureTitle": "Ensure that a successfully published submission becomes visible in the article feeds immediately after publishing (Home/News queries refresh appropriately) and that the success state is only shown after the publish mutation truly succeeds.",
       "files": [
+        "frontend/src/hooks/useQueries.ts",
         "frontend/src/pages/UploadSubmissionPage.tsx"
       ],
       "components": [
@@ -36,49 +38,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-46"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-remove-or-disable-all-admin-only-moderation-ui-routes-and-navigation-entry-points-so-the-app-no-longer-exposes-admin-approval-or-admin-upload-screens",
-      "featureTitle": "Remove or disable all admin-only moderation UI, routes, and navigation entry points so the app no longer exposes Admin Approval or Admin Upload screens.",
-      "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/pages/AdminApprovalPage.tsx",
-        "frontend/src/pages/AdminUploadArticlePage.tsx",
-        "frontend/src/pages/HomePage.tsx",
-        "frontend/src/pages/ProfilePage.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-47"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-keep-the-existing-global-search-bar-and-upload-button-in-the-app-header-unchanged-while-ensuring-search-continues-to-work-against-the-published-articles-dataset",
-      "featureTitle": "Keep the existing global search bar and upload button in the app header unchanged while ensuring search continues to work against the published Articles dataset.",
-      "files": [
-        "frontend/src/hooks/useQueries.ts"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-48"
+        "REQ-3"
       ],
       "confidence": "high"
     }

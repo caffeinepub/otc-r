@@ -1,14 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Simplify the posting flow so authenticated user uploads are published immediately, removing all moderation/admin approval workflow from backend and frontend.
+**Goal:** Fix the publish flow so authenticated Internet Identity users can publish successfully, with clearer error messaging and immediate feed updates after a successful publish.
 
 **Planned changes:**
-- Backend: remove Pending/Approved/Rejected submission state and all ArticleSubmission-based moderation storage/logic; store uploads directly as published Articles.
-- Backend: update/repurpose the upload canister method to publish immediately while still rejecting anonymous callers (Internet Identity required).
-- Backend: remove admin-only authorization gates related to publishing and article queries so Home/News and search return all published articles without role checks.
-- Frontend: remove moderation/admin React Query hooks and API usage; update the upload mutation to publish immediately and invalidate/refetch article list queries so new posts appear right away.
-- Frontend: update the Upload page to remove pending/approval language and any `pending` status payload fields; show a “published” confirmation after successful upload.
-- Frontend: remove/disable admin-only moderation UI, routes, and navigation entry points (e.g., admin approval/upload screens), while keeping the existing header search bar and upload button unchanged.
+- Update backend authorization logic in `uploadArticle(article)` to allow authenticated Internet Identity users to publish while blocking anonymous callers with a clear authorization error.
+- Improve Publish Content page error handling to display the actual backend error message when available (fallback to a generic message only when needed) and keep the form usable after failures.
+- Ensure publish success UI is shown only after the upload mutation truly succeeds, and refresh/refresh-trigger article feeds (Home/News) so newly published articles appear immediately without a hard reload.
 
-**User-visible outcome:** Signed-in users can upload a post and see it appear immediately in Home/News feeds and search results, with no admin approval, pending states, or admin moderation screens exposed in the UI.
+**User-visible outcome:** Signed-in users can publish content successfully; if publishing fails the UI shows a meaningful error message; after a successful publish the new article appears in Home/News right away and the success confirmation only appears on true success.

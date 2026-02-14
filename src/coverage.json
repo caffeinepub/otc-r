@@ -1,110 +1,61 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-13T10:42:03.322Z",
+  "generatedAt": "2026-02-14T02:25:53.211Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 7,
-    "implemented": 4,
+    "total": 3,
+    "implemented": 2,
     "items": [
       {
-        "id": "REQ-42",
-        "summary": "Remove the submission moderation workflow from the Motoko backend by eliminating the Pending/Approved/Rejected states and any ArticleSubmission-based approval logic, so user uploads are stored as published Articles immediately.",
+        "id": "REQ-1",
+        "summary": "Fix the backend authorization logic so authenticated Internet Identity users can successfully publish content via the existing `uploadArticle(article)` method, while still preventing anonymous callers from publishing.",
         "status": "unknown",
         "plannedFiles": [],
         "matchedFiles": []
       },
       {
-        "id": "REQ-43",
-        "summary": "Update the backend upload API so that the existing user upload flow saves content directly into the Articles store (immediate publish) while still requiring the caller to be an authenticated user (Internet Identity).",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-44",
-        "summary": "Remove all admin-only authorization requirements related to creating/publishing articles so Home and News feeds show all published articles without role checks.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-45",
-        "summary": "Update frontend React Query hooks to remove moderation/admin APIs and align the upload mutation with immediate publish, including invalidating/refetching article list queries so new uploads appear in Home and News immediately.",
+        "id": "REQ-2",
+        "summary": "Improve error handling in the Publish Content page so that when publishing fails, the UI shows the actual backend error message (when available) instead of always showing a generic failure message.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/pages/HomePage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/pages/HomePage.tsx"
-        ]
-      },
-      {
-        "id": "REQ-46",
-        "summary": "Update the Upload page UI and behavior so authenticated users publish immediately, and remove all references to approval/pending states from user-facing text and payload fields.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/pages/UploadSubmissionPage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/pages/UploadSubmissionPage.tsx"
-        ]
-      },
-      {
-        "id": "REQ-47",
-        "summary": "Remove or disable all admin-only moderation UI, routes, and navigation entry points so the app no longer exposes Admin Approval or Admin Upload screens.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/App.tsx",
-          "frontend/src/pages/ProfilePage.tsx",
-          "frontend/src/pages/HomePage.tsx",
-          "frontend/src/pages/AdminApprovalPage.tsx",
-          "frontend/src/pages/AdminUploadArticlePage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/App.tsx",
-          "frontend/src/pages/ProfilePage.tsx",
-          "frontend/src/pages/HomePage.tsx",
-          "frontend/src/pages/AdminApprovalPage.tsx",
-          "frontend/src/pages/AdminUploadArticlePage.tsx"
-        ]
-      },
-      {
-        "id": "REQ-48",
-        "summary": "Keep the existing global search bar and upload button in the app header unchanged while ensuring search continues to work against the published Articles dataset.",
-        "status": "implemented",
-        "plannedFiles": [
+          "frontend/src/utils/errorMessage.ts",
+          "frontend/src/pages/UploadSubmissionPage.tsx",
           "frontend/src/hooks/useQueries.ts"
         ],
         "matchedFiles": [
+          "frontend/src/utils/errorMessage.ts",
+          "frontend/src/pages/UploadSubmissionPage.tsx",
           "frontend/src/hooks/useQueries.ts"
+        ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Ensure that a successfully published submission becomes visible in the article feeds immediately after publishing (Home/News queries refresh appropriately) and that the success state is only shown after the publish mutation truly succeeds.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/UploadSubmissionPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/UploadSubmissionPage.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
     "backend/main.mo",
-    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/App.tsx",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
     "frontend/src/hooks/useQueries.ts",
-    "frontend/src/pages/AdminApprovalPage.tsx",
-    "frontend/src/pages/AdminUploadArticlePage.tsx",
-    "frontend/src/pages/HomePage.tsx",
-    "frontend/src/pages/ProfilePage.tsx",
     "frontend/src/pages/UploadSubmissionPage.tsx",
+    "frontend/src/utils/errorMessage.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

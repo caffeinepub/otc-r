@@ -1,145 +1,70 @@
 {
   "kind": "build_request",
-  "title": "Simplify posting flow to immediate publish (remove moderation/admin workflow)",
-  "priority": "normal",
+  "title": "Fix publish flow failing on every content submission",
+  "priority": "high",
   "requirements": [
     {
-      "id": "REQ-42",
-      "text": "Remove the submission moderation workflow from the Motoko backend by eliminating the Pending/Approved/Rejected states and any ArticleSubmission-based approval logic, so user uploads are stored as published Articles immediately.",
+      "id": "REQ-1",
+      "text": "Fix the backend authorization logic so authenticated Internet Identity users can successfully publish content via the existing `uploadArticle(article)` method, while still preventing anonymous callers from publishing.",
       "target": "backend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "recent-messages-4"
         ],
         "quotes": [
-          "Simplify Posting Flow – Immediate Publish\nRemove the approval workflow entirely.\nRequired behavior:\nWhen any user uploads a post (text + image URL), it should be saved as Published immediately\nRemove all Pending / Approval / Rejected states from backend and UI\nHome and News feeds must show all published posts without role checks\nRemove or ignore any admin-only UI or logic related to moderation"
+          "It's failing to publish content everytime I try, please fix it."
         ]
       },
       "acceptanceCriteria": [
-        "Backend no longer defines or uses a SubmissionStatus enum/variant for article publishing.",
-        "Backend no longer stores or returns ArticleSubmission records for moderation purposes (no pending queue).",
-        "Backend no longer exposes moderation-related canister methods (approveSubmission, rejectSubmission, approveOrRejectSubmission, getPendingArticles).",
-        "A signed-in user upload results in an Article being added to the articles collection immediately and returned by getAllArticles and relevant filter queries."
+        "When a signed-in user submits content from the Publish Content page, the backend call `uploadArticle(article)` completes successfully and persists the article.",
+        "Anonymous callers (no Internet Identity session) cannot publish and receive a clear authorization error from the backend.",
+        "Existing admin-only restrictions (e.g., deleting articles) remain restricted to admins only."
       ]
     },
     {
-      "id": "REQ-43",
-      "text": "Update the backend upload API so that the existing user upload flow saves content directly into the Articles store (immediate publish) while still requiring the caller to be an authenticated user (Internet Identity).",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Any post uploaded by any user should be saved and immediately shown in Home and News feeds."
-        ]
-      },
-      "acceptanceCriteria": [
-        "The canister provides an update method that the frontend upload page can call to publish an upload immediately (either repurpose submitArticle to write to articles, or introduce a new method and update the frontend accordingly).",
-        "The method rejects anonymous callers (keeps the existing requirement that the user must be signed in).",
-        "The published Article includes at minimum: id, promotion, category, publishDate, imageUrl, summary, content (matching the existing Article model fields in backend/main.mo)."
-      ]
-    },
-    {
-      "id": "REQ-44",
-      "text": "Remove all admin-only authorization requirements related to creating/publishing articles so Home and News feeds show all published articles without role checks.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Home and News feeds must show all published posts without role checks\nRemove all admin, approval, and moderation logic."
-        ]
-      },
-      "acceptanceCriteria": [
-        "No published-article query method (getAllArticles, getArticlesByPromotion, getArticlesByCategory, getArticlesByPromotionAndCategory, searchArticles, getArticleById) requires admin permissions.",
-        "No admin-only gates remain that would prevent user-published content from being returned in feeds."
-      ]
-    },
-    {
-      "id": "REQ-45",
-      "text": "Update frontend React Query hooks to remove moderation/admin APIs and align the upload mutation with immediate publish, including invalidating/refetching article list queries so new uploads appear in Home and News immediately.",
+      "id": "REQ-2",
+      "text": "Improve error handling in the Publish Content page so that when publishing fails, the UI shows the actual backend error message (when available) instead of always showing a generic failure message.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "recent-messages-4"
         ],
         "quotes": [
-          "When any user uploads a post (text + image URL), it should be saved as Published immediately\nOn approval, posts must immediately appear in Home and News feeds\nRemove or ignore any admin-only UI or logic related to moderation"
+          "It's failing to publish content everytime I try, please fix it."
         ]
       },
       "acceptanceCriteria": [
-        "frontend/src/hooks/useQueries.ts no longer imports or references SubmissionStatus or moderation-only types/hooks (pending list, approve/reject).",
-        "The upload/submission mutation called by the upload page triggers invalidation of all relevant article queries (at minimum queryKey ['articles']) so navigating back to Home/News shows the new item without hard refresh.",
-        "Any admin-check hook (useIsCallerAdmin) is removed or becomes unused and is not required for feeds or uploading."
+        "If publishing fails due to authorization (or any backend trap), the Publish Content page displays a user-visible error message derived from the thrown error (fallback to a generic message only if none is available).",
+        "The error message is displayed in English and is visible without requiring the user to open devtools.",
+        "The form remains usable after an error (user can correct and retry)."
       ]
     },
     {
-      "id": "REQ-46",
-      "text": "Update the Upload page UI and behavior so authenticated users publish immediately, and remove all references to approval/pending states from user-facing text and payload fields.",
+      "id": "REQ-3",
+      "text": "Ensure that a successfully published submission becomes visible in the article feeds immediately after publishing (Home/News queries refresh appropriately) and that the success state is only shown after the publish mutation truly succeeds.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "recent-messages-4"
         ],
         "quotes": [
-          "Remove all Pending / Approval / Rejected states from backend and UI"
+          "It's failing to publish content everytime I try, please fix it."
         ]
       },
       "acceptanceCriteria": [
-        "frontend/src/pages/UploadSubmissionPage.tsx no longer sets `status: SubmissionStatus.pending` on the payload.",
-        "UploadSubmissionPage user-facing text no longer mentions admin approval or pending review (e.g., replace “Submit for Approval” / “pending admin approval” with immediate publish language).",
-        "After a successful upload, the confirmation state tells the user the post is published and can be seen in feeds immediately."
-      ]
-    },
-    {
-      "id": "REQ-47",
-      "text": "Remove or disable all admin-only moderation UI, routes, and navigation entry points so the app no longer exposes Admin Approval or Admin Upload screens.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Remove all admin, approval, and moderation logic.\nDo not show or reference any admin-only UI."
-        ]
-      },
-      "acceptanceCriteria": [
-        "Profile page no longer shows an “Admin Access” section or links/buttons to '/admin/upload-article' or '/admin/approval'.",
-        "Routes for '/admin/upload-article' and '/admin/approval' are removed from frontend/src/App.tsx route tree, or replaced with a non-admin accessible state that does not reference admin/moderation functionality.",
-        "AdminApprovalPage and AdminUploadArticlePage are no longer reachable through in-app navigation."
-      ]
-    },
-    {
-      "id": "REQ-48",
-      "text": "Keep the existing global search bar and upload button in the app header unchanged while ensuring search continues to work against the published Articles dataset.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Keep the existing upload button and search bar unchanged"
-        ]
-      },
-      "acceptanceCriteria": [
-        "No functional or visual regressions in the existing AppHeader search input and Upload navigation affordance.",
-        "Search results continue to be returned from the backend searchArticles API and displayed by existing page logic where search is used.",
-        "Uploading remains accessible via the existing Upload button navigation flow."
+        "After a successful publish, navigating to Home and/or News shows the newly published article without requiring a hard refresh.",
+        "The “Published Successfully!” confirmation screen is only shown when the upload mutation succeeds (not on failed attempts)."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor in backend/main.mo (no additional backend services).",
-    "Do not modify files under frontend/src/components/ui (Shadcn components are read-only).",
-    "Do not modify immutable hook entrypoints under frontend/src/hooks/useInternetIdentity.ts/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, or frontend/src/main.tsx.",
-    "Keep the existing global search bar and upload button UI in the header unchanged."
+    "Backend must remain a single Motoko actor in `backend/main.mo` (no additional backend services).",
+    "Do not edit files under `frontend/src/components/ui` or other frontend immutable paths listed in SYSTEM_CONTEXT."
   ],
   "nonGoals": [
-    "Do not add new admin features, moderation queues, or role-based publishing controls.",
-    "Do not add external databases, third-party auth providers, or real-time messaging.",
-    "Do not redesign the overall navigation/tab structure or replace the search experience beyond what is required to remove moderation dependencies."
+    "Adding a new approval workflow or admin review process for user submissions.",
+    "Implementing third-party authentication providers (only Internet Identity is supported).",
+    "Adding external databases or non-Internet-Computer storage."
   ],
   "imageRequirements": {
     "required": [],

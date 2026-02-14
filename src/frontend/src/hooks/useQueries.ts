@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
 import { Article, ArticleCategory, UserProfile } from '../backend';
 import { toast } from 'sonner';
+import { normalizeErrorMessage } from '../utils/errorMessage';
 
 export function useGetAllArticles() {
   const { actor, isFetching } = useActor();
@@ -141,13 +142,13 @@ export function useUploadArticle() {
       return actor.uploadArticle(article);
     },
     onSuccess: async () => {
-      // Invalidate all article-related queries to ensure Home and News feeds update
+      // Invalidate all article-related queries to ensure Home and News feeds update immediately
       await queryClient.invalidateQueries({ queryKey: ['articles'] });
       await queryClient.refetchQueries({ queryKey: ['articles'] });
-      toast.success('Article published successfully');
+      toast.success('Article published and now publicly visible in Home and News feeds');
     },
-    onError: (error: any) => {
-      const errorMessage = error?.message || 'Failed to publish article';
+    onError: (error: unknown) => {
+      const errorMessage = normalizeErrorMessage(error);
       toast.error(errorMessage);
     },
   });

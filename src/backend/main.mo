@@ -12,9 +12,7 @@ import Principal "mo:core/Principal";
 import Runtime "mo:core/Runtime";
 import AccessControl "authorization/access-control";
 import MixinAuthorization "authorization/MixinAuthorization";
-import Migration "migration";
 
-(with migration = Migration.run)
 actor {
   public type ArticleCategory = {
     #news;
@@ -178,14 +176,16 @@ actor {
   };
 
   public shared ({ caller }) func uploadArticle(article : Article) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can upload articles");
+    let role = AccessControl.getUserRole(accessControlState, caller);
+
+    switch (role) {
+      case (#guest) { Runtime.trap("Unauthorized: Only authenticated users can upload articles") };
+      case (_) { articles.add(article.id, article) };
     };
-    articles.add(article.id, article);
   };
 
   public shared ({ caller }) func deleteArticle(articleId : Nat32) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can delete articles");
     };
     articles.remove(articleId);
